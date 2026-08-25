@@ -98,7 +98,7 @@
                             wire:loading.attr="disabled"
                             wire:target="chargeWith"
                             @disabled(! $paymentReceipt)
-                            class="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-500 disabled:cursor-not-allowed disabled:opacity-50"
+                            class="rounded-lg bg-primary-600 px-4 py-2 text-base font-medium text-white transition hover:bg-primary-500 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
                         >
                             Cobrar
                         </button>

@@ -48,6 +48,7 @@ class CreateSale extends CreateRecord
         return Action::make('create')
             ->label('Cobrar')
             ->keyBindings(['mod+s'])
+            ->extraAttributes(['class' => 'text-base! text-white! sm:text-sm!'])
             ->action(function (): void {
                 $this->form->getState();
 
@@ -118,7 +119,7 @@ class CreateSale extends CreateRecord
                         ->heading('Resumen de venta')
                         ->extraAttributes([
                             'x-cloak' => true,
-                            'class' => 'fixed inset-y-0 right-0 z-50 w-full max-w-xs overflow-y-auto border-l border-gray-200 shadow-xl transition-transform duration-300 ease-in-out dark:border-gray-700 lg:translate-x-0 lg:inset-y-auto lg:top-20 lg:bottom-6 lg:rounded-l-xl',
+                            'class' => 'fixed inset-y-0 right-0 z-50 w-full max-w-xs overflow-y-auto shadow-xl transition-transform duration-300 ease-in-out lg:translate-x-0 lg:inset-y-auto lg:top-20 lg:bottom-6 lg:rounded-l-xl',
                         ])
                         ->extraAlpineAttributes([
                             ':class' => "saleSummaryOpen ? 'translate-x-0' : 'translate-x-full'",
