@@ -10,6 +10,12 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\CreateRecord;
+use Filament\Schemas\Components\Component;
+use Filament\Schemas\Components\EmbeddedSchema;
+use Filament\Schemas\Components\Form;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Alignment;
@@ -30,11 +36,47 @@ class CreateSale extends CreateRecord
     {
         return $schema
             ->components([
-                View::make('filament.sales.product-cards')
-                    ->viewData(['products' => Product::query()->where('active', true)->orderBy('name')->get()]),
-                $this->getSaleDetailsTable(),
-                SaleResource::getTotalField(),
+                Group::make([
+                    Grid::make(['default' => 1, 'lg' => 3])
+                        ->components([
+                            Group::make([
+                                View::make('filament.sales.product-cards')
+                                    ->viewData(['products' => Product::query()->where('active', true)->orderBy('name')->get()]),
+                                $this->getSaleDetailsTable(),
+                            ])->columnSpan(['lg' => 2]),
+
+                            Section::make([
+                                View::make('filament.sales.cart-close-button'),
+                                SaleResource::getTotalField(),
+                                $this->getFormActionsContentComponent(),
+                            ])
+                                ->heading('Resumen de venta')
+                                ->columnSpan(['lg' => 1])
+                                ->extraAttributes([
+                                    'x-cloak' => true,
+                                    'class' => 'fixed inset-y-0 right-0 z-50 w-full max-w-xs overflow-y-auto border-l border-gray-200 shadow-xl transition-transform duration-300 ease-in-out dark:border-gray-700 lg:static lg:z-auto lg:w-auto lg:max-w-none lg:translate-x-0 lg:self-start lg:sticky lg:top-6 lg:overflow-visible lg:border-0 lg:shadow-none lg:transition-none',
+                                ])
+                                ->extraAlpineAttributes([
+                                    ':class' => "saleSummaryOpen ? 'translate-x-0' : 'translate-x-full'",
+                                ]),
+                        ]),
+
+                    View::make('filament.sales.cart-toggle-button'),
+                    View::make('filament.sales.cart-backdrop'),
+                ])->extraAttributes(['x-data' => '{ saleSummaryOpen: false }']),
             ]);
+    }
+
+    public function getFormContentComponent(): Component
+    {
+        return Form::make([EmbeddedSchema::make('form')])
+            ->id('form')
+            ->livewireSubmitHandler($this->getSubmitFormLivewireMethodName());
+    }
+
+    protected function hasFullWidthFormActions(): bool
+    {
+        return true;
     }
 
     protected function getSaleDetailsTable(): Repeater
