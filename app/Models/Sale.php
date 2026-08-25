@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PaymentMethod;
 use Database\Factories\SaleFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-#[Fillable(['user_id', 'total', 'date'])]
+#[Fillable(['user_id', 'total', 'date', 'payment_method', 'exchange_rate', 'amount_usd', 'receipt_path'])]
 class Sale extends Model
 {
     /** @use HasFactory<SaleFactory> */
@@ -20,7 +21,7 @@ class Sale extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['user_id', 'total', 'date'])
+            ->logOnly(['user_id', 'total', 'date', 'payment_method', 'exchange_rate', 'amount_usd'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
@@ -35,6 +36,9 @@ class Sale extends Model
         return [
             'total' => 'decimal:2',
             'date' => 'date',
+            'payment_method' => PaymentMethod::class,
+            'exchange_rate' => 'decimal:4',
+            'amount_usd' => 'decimal:2',
         ];
     }
 

@@ -16,7 +16,7 @@
         Productos disponibles
     </p>
 
-    <div class="grid grid-cols-4 gap-2 sm:gap-3">
+    <div class="grid grid-cols-4 gap-2 sm:gap-3 lg:grid-cols-2 lg:gap-4">
         @forelse ($products as $product)
             <button
                 type="button"
@@ -24,7 +24,7 @@
                 class="flex flex-col items-start gap-1 rounded-lg border p-2 text-left shadow-sm transition hover:shadow-md sm:p-4 {{ $colors[$loop->index % count($colors)] }}"
             >
                 <span class="text-xs font-medium text-gray-950 sm:text-sm dark:text-white">{{ $product->name }}</span>
-                <span class="text-xs text-gray-600 dark:text-gray-300">{{ \Illuminate\Support\Number::currency($product->price) }}</span>
+                <span class="text-xs text-gray-600 dark:text-gray-300">{{ \Illuminate\Support\Number::currency($product->price, 'ARS', 'es_AR') }}</span>
             </button>
         @empty
             <p class="col-span-full text-sm text-gray-500 dark:text-gray-400">
