@@ -1,0 +1,72 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+
+/*
+ * Filament's table-repeater stacks each row's fields onto separate lines
+ * below the `lg`/`@xl` breakpoint. We want the "Detalle" table in Crear
+ * Venta to always stay a real single-line row, scrolling horizontally on
+ * narrow screens instead of stacking.
+ */
+.fi-fo-table-repeater {
+    overflow-x: auto;
+    font-size: 0.75rem;
+
+    > table {
+        display: table !important;
+
+        > thead {
+            display: table-header-group !important;
+
+            > tr > th {
+                padding: 0.375rem 0.5rem !important;
+                font-size: 0.75rem !important;
+            }
+        }
+
+        > tbody {
+            display: table-row-group !important;
+
+            > tr {
+                display: table-row !important;
+                padding: 0 !important;
+
+                > td {
+                    display: table-cell !important;
+                    padding: 0.25rem 0.5rem !important;
+                }
+            }
+        }
+    }
+
+    .fi-fo-field-label-content,
+    .fi-in-entry-label {
+        display: none !important;
+    }
+
+    input {
+        font-size: 0.75rem !important;
+    }
+
+    td .fi-input-wrp,
+    td .fi-fo-field-wrp,
+    td input {
+        width: 100% !important;
+    }
+
+    td .fi-input-wrp-content-ctn {
+        flex: 1 1 auto !important;
+    }
+
+    input[type='number'] {
+        appearance: textfield !important;
+        -moz-appearance: textfield !important;
+
+        &::-webkit-inner-spin-button,
+        &::-webkit-outer-spin-button {
+            appearance: none !important;
+            margin: 0 !important;
+        }
+    }
+}
