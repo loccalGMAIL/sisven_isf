@@ -65,7 +65,7 @@ class ProductResource extends Resource
                     ->searchable(),
                 TextColumn::make('price')
                     ->label('Precio')
-                    ->money()
+                    ->money('ARS', locale: 'es_AR')
                     ->sortable(),
                 IconColumn::make('active')
                     ->label('Activo')

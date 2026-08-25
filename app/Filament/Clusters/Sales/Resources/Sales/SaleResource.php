@@ -2,6 +2,7 @@
 
 namespace App\Filament\Clusters\Sales\Resources\Sales;
 
+use App\Enums\PaymentMethod;
 use App\Filament\Clusters\Sales\Resources\Sales\Pages\CreateSale;
 use App\Filament\Clusters\Sales\Resources\Sales\Pages\ManageSales;
 use App\Filament\Clusters\Sales\SalesCluster;
@@ -24,6 +25,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Storage;
 
 class SaleResource extends Resource
 {
@@ -134,11 +136,16 @@ class SaleResource extends Resource
                     ->searchable(),
                 TextColumn::make('total')
                     ->label('Total')
-                    ->money()
+                    ->money('ARS', locale: 'es_AR')
                     ->sortable(),
+                TextColumn::make('payment_method')
+                    ->label('Pago')
+                    ->badge()
+                    ->formatStateUsing(fn (?PaymentMethod $state): string => $state?->label() ?? '—')
+                    ->color(fn (?PaymentMethod $state): string => $state?->color() ?? 'gray'),
                 TextColumn::make('date')
                     ->label('Fecha')
-                    ->date()
+                    ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
@@ -153,6 +160,12 @@ class SaleResource extends Resource
                 //
             ])
             ->recordActions([
+                Action::make('viewReceipt')
+                    ->label('Comprobante')
+                    ->icon(Heroicon::Photo)
+                    ->url(fn (Sale $record): string => Storage::disk('public')->url($record->receipt_path))
+                    ->openUrlInNewTab()
+                    ->visible(fn (Sale $record): bool => filled($record->receipt_path)),
                 EditAction::make(),
                 DeleteAction::make(),
             ])

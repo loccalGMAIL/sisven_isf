@@ -4,11 +4,13 @@ namespace App\Filament\Clusters\Sales\Resources\Sales\Pages;
 
 use App\Filament\Clusters\Sales\Resources\Sales\SaleResource;
 use App\Models\Product;
+use App\Models\Setting;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\EmbeddedSchema;
@@ -19,16 +21,82 @@ use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Alignment;
 use Illuminate\Support\Str;
+use Livewire\WithFileUploads;
 
 class CreateSale extends CreateRecord
 {
+    use WithFileUploads;
+
     protected static string $resource = SaleResource::class;
 
     protected static bool $canCreateAnother = false;
 
+    public bool $paymentModalOpen = false;
+
+    public mixed $paymentReceipt = null;
+
+    protected ?string $chargingPaymentMethod = null;
+
+    protected ?float $chargingExchangeRate = null;
+
+    protected ?float $chargingAmountUsd = null;
+
+    protected ?string $chargingReceiptPath = null;
+
     protected function getCreateFormAction(): Action
     {
-        return parent::getCreateFormAction()->label('Cobrar');
+        return Action::make('create')
+            ->label('Cobrar')
+            ->keyBindings(['mod+s'])
+            ->action(function (): void {
+                $this->form->getState();
+
+                $this->paymentModalOpen = true;
+            });
+    }
+
+    public function closePaymentModal(): void
+    {
+        $this->paymentModalOpen = false;
+    }
+
+    public function chargeWith(string $method): void
+    {
+        if (! in_array($method, ['pesos', 'dolares', 'transferencia'], true)) {
+            return;
+        }
+
+        if ($method === 'transferencia') {
+            if (! $this->paymentReceipt) {
+                Notification::make()
+                    ->title('Adjuntá el comprobante de la transferencia')
+                    ->danger()
+                    ->send();
+
+                return;
+            }
+
+            $this->chargingReceiptPath = $this->paymentReceipt->store('sale-receipts', 'public');
+        }
+
+        if ($method === 'dolares') {
+            $this->chargingExchangeRate = (float) Setting::current()->dollar_rate;
+            $this->chargingAmountUsd = Setting::usdAmountFor($this->currentTotal());
+        }
+
+        $this->chargingPaymentMethod = $method;
+
+        $this->create();
+    }
+
+    protected function currentTotal(): float
+    {
+        return (float) ($this->data['total'] ?? 0);
+    }
+
+    protected function currentUsdAmount(): float
+    {
+        return Setting::usdAmountFor($this->currentTotal());
     }
 
     public function form(Schema $schema): Schema
@@ -58,6 +126,15 @@ class CreateSale extends CreateRecord
 
                     View::make('filament.sales.cart-toggle-button'),
                     View::make('filament.sales.cart-backdrop'),
+
+                    View::make('filament.sales.payment-method-modal')
+                        ->viewData(fn (): array => [
+                            'paymentModalOpen' => $this->paymentModalOpen,
+                            'paymentReceipt' => $this->paymentReceipt,
+                            'total' => $this->currentTotal(),
+                            'usdAmount' => $this->currentUsdAmount(),
+                            'dollarRate' => (float) Setting::current()->dollar_rate,
+                        ]),
                 ])
                     ->extraAttributes(['x-data' => '{ saleSummaryOpen: false }'])
                     ->columnSpanFull(),
@@ -167,6 +244,10 @@ class CreateSale extends CreateRecord
     {
         $data['user_id'] = auth()->id();
         $data['date'] = now();
+        $data['payment_method'] = $this->chargingPaymentMethod;
+        $data['exchange_rate'] = $this->chargingExchangeRate;
+        $data['amount_usd'] = $this->chargingAmountUsd;
+        $data['receipt_path'] = $this->chargingReceiptPath;
 
         return $data;
     }
