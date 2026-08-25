@@ -13,7 +13,6 @@ use Filament\Resources\Pages\CreateRecord;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
-use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\View;
@@ -37,33 +36,31 @@ class CreateSale extends CreateRecord
         return $schema
             ->components([
                 Group::make([
-                    Grid::make(['default' => 1, 'lg' => 3])
-                        ->components([
-                            Group::make([
-                                View::make('filament.sales.product-cards')
-                                    ->viewData(['products' => Product::query()->where('active', true)->orderBy('name')->get()]),
-                                $this->getSaleDetailsTable(),
-                            ])->columnSpan(['lg' => 2]),
+                    Group::make([
+                        View::make('filament.sales.product-cards')
+                            ->viewData(['products' => Product::query()->where('active', true)->orderBy('name')->get()]),
+                        $this->getSaleDetailsTable(),
+                    ])->extraAttributes(['class' => 'lg:pr-80']),
 
-                            Section::make([
-                                View::make('filament.sales.cart-close-button'),
-                                SaleResource::getTotalField(),
-                                $this->getFormActionsContentComponent(),
-                            ])
-                                ->heading('Resumen de venta')
-                                ->columnSpan(['lg' => 1])
-                                ->extraAttributes([
-                                    'x-cloak' => true,
-                                    'class' => 'fixed inset-y-0 right-0 z-50 w-full max-w-xs overflow-y-auto border-l border-gray-200 shadow-xl transition-transform duration-300 ease-in-out dark:border-gray-700 lg:static lg:z-auto lg:w-auto lg:max-w-none lg:translate-x-0 lg:self-start lg:sticky lg:top-6 lg:overflow-visible lg:border-0 lg:shadow-none lg:transition-none',
-                                ])
-                                ->extraAlpineAttributes([
-                                    ':class' => "saleSummaryOpen ? 'translate-x-0' : 'translate-x-full'",
-                                ]),
+                    Section::make([
+                        View::make('filament.sales.cart-close-button'),
+                        SaleResource::getTotalField(),
+                        $this->getFormActionsContentComponent(),
+                    ])
+                        ->heading('Resumen de venta')
+                        ->extraAttributes([
+                            'x-cloak' => true,
+                            'class' => 'fixed inset-y-0 right-0 z-50 w-full max-w-xs overflow-y-auto border-l border-gray-200 shadow-xl transition-transform duration-300 ease-in-out dark:border-gray-700 lg:translate-x-0 lg:inset-y-auto lg:top-20 lg:bottom-6 lg:rounded-l-xl',
+                        ])
+                        ->extraAlpineAttributes([
+                            ':class' => "saleSummaryOpen ? 'translate-x-0' : 'translate-x-full'",
                         ]),
 
                     View::make('filament.sales.cart-toggle-button'),
                     View::make('filament.sales.cart-backdrop'),
-                ])->extraAttributes(['x-data' => '{ saleSummaryOpen: false }']),
+                ])
+                    ->extraAttributes(['x-data' => '{ saleSummaryOpen: false }'])
+                    ->columnSpanFull(),
             ]);
     }
 

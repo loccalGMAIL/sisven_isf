@@ -16,7 +16,7 @@
         Productos disponibles
     </p>
 
-    <div class="grid grid-cols-4 gap-2 sm:gap-3">
+    <div class="grid grid-cols-4 gap-2 sm:gap-3 lg:grid-cols-2 lg:gap-4">
         @forelse ($products as $product)
             <button
                 type="button"
