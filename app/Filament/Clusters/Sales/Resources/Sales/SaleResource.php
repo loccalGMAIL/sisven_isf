@@ -35,6 +35,8 @@ class SaleResource extends Resource
 
     protected static ?string $cluster = SalesCluster::class;
 
+    protected static ?int $navigationSort = 1;
+
     protected static ?string $recordTitleAttribute = 'id';
 
     protected static ?string $navigationLabel = 'Ventas';
@@ -130,6 +132,7 @@ class SaleResource extends Resource
     {
         return $table
             ->recordTitleAttribute('id')
+            ->defaultSort('date', 'desc')
             ->columns([
                 TextColumn::make('user.name')
                     ->label('Vendedor')
@@ -137,6 +140,9 @@ class SaleResource extends Resource
                 TextColumn::make('total')
                     ->label('Total')
                     ->money('ARS', locale: 'es_AR')
+                    ->description(fn (Sale $record): ?string => $record->payment_method === PaymentMethod::Dolares && $record->amount_usd !== null
+                        ? 'US$ '.number_format((float) $record->amount_usd, 2)
+                        : null)
                     ->sortable(),
                 TextColumn::make('payment_method')
                     ->label('Pago')
