@@ -11,6 +11,7 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Pages\Dashboard;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\EmbeddedSchema;
@@ -100,6 +101,11 @@ class CreateSale extends CreateRecord
         return Setting::usdAmountFor($this->currentTotal());
     }
 
+    protected function getRedirectUrl(): string
+    {
+        return Dashboard::getUrl();
+    }
+
     public function form(Schema $schema): Schema
     {
         return $schema
@@ -113,7 +119,10 @@ class CreateSale extends CreateRecord
 
                     Section::make([
                         View::make('filament.sales.cart-close-button'),
-                        SaleResource::getTotalField(),
+                        Hidden::make('total')
+                            ->rule('numeric')
+                            ->required(),
+                        $this->getTotalDisplayField(),
                         $this->getFormActionsContentComponent(),
                     ])
                         ->heading('Resumen de venta')
@@ -170,20 +179,20 @@ class CreateSale extends CreateRecord
                 TextInput::make('product_name')
                     ->label('Producto')
                     ->disabled()
-                    ->dehydrated(false),
+                    ->dehydrated(false)
+                    ->extraInputAttributes(['class' => 'text-base sm:text-sm']),
                 TextInput::make('quantity')
                     ->label('Cantidad')
                     ->numeric()
                     ->disabled()
                     ->dehydrated()
-                    ->extraInputAttributes(['class' => 'text-end']),
+                    ->extraInputAttributes(['class' => 'text-end text-base sm:text-sm']),
                 TextInput::make('subtotal')
                     ->label('Precio')
-                    ->numeric()
                     ->prefix('$')
                     ->disabled()
                     ->dehydrated(false)
-                    ->extraInputAttributes(['class' => 'text-end']),
+                    ->extraInputAttributes(['class' => 'text-end text-base sm:text-sm']),
             ])
             ->compact()
             ->addable(false)
@@ -205,10 +214,11 @@ class CreateSale extends CreateRecord
             ->schema([
                 TextInput::make('quantity')
                     ->label('Cantidad')
-                    ->numeric()
+                    ->integer()
                     ->default(1)
                     ->minValue(1)
-                    ->required(),
+                    ->required()
+                    ->extraInputAttributes(['class' => 'text-lg sm:text-base']),
             ])
             ->action(function (array $data, array $arguments): void {
                 $product = Product::findOrFail($arguments['product']);
@@ -222,11 +232,21 @@ class CreateSale extends CreateRecord
                     'product_name' => $product->name,
                     'quantity' => $data['quantity'],
                     'price' => $product->price,
-                    'subtotal' => number_format($data['quantity'] * $product->price, 2, '.', ''),
+                    'subtotal' => number_format($data['quantity'] * $product->price, 2, ',', '.'),
                 ];
 
                 $this->recalculateTotal();
             });
+    }
+
+    protected function getTotalDisplayField(): TextInput
+    {
+        return TextInput::make('total_display')
+            ->label('Total')
+            ->prefix('$')
+            ->readOnly()
+            ->dehydrated(false)
+            ->extraInputAttributes(['class' => 'text-lg font-semibold sm:text-base']);
     }
 
     protected function recalculateTotal(): void
@@ -235,6 +255,7 @@ class CreateSale extends CreateRecord
             ->sum(fn (array $detail): float => (float) ($detail['quantity'] ?? 0) * (float) ($detail['price'] ?? 0));
 
         $this->data['total'] = number_format($total, 2, '.', '');
+        $this->data['total_display'] = number_format($total, 2, ',', '.');
     }
 
     /**
