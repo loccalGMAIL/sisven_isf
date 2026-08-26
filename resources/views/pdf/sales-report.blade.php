@@ -111,7 +111,7 @@
         {{ $summary['dateFrom'] ? \Illuminate\Support\Carbon::parse($summary['dateFrom'])->format('d/m/Y') : '—' }}
         al
         {{ $summary['dateTo'] ? \Illuminate\Support\Carbon::parse($summary['dateTo'])->format('d/m/Y') : '—' }}
-        &nbsp;·&nbsp; Generado el {{ now()->format('d/m/Y H:i') }}
+        &nbsp;·&nbsp; Generado el {{ now(config('app.display_timezone'))->format('d/m/Y H:i') }}
     </p>
 
     <div class="totals-row">

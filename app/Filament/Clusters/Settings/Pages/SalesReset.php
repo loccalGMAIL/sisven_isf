@@ -99,7 +99,7 @@ class SalesReset extends Page
         $count = $sales->count();
 
         $backup = [
-            'generated_at' => now()->toIso8601String(),
+            'generated_at' => now(config('app.display_timezone'))->toIso8601String(),
             'generated_by' => auth()->user()?->name,
             'count' => $count,
             'sales' => $sales->map(fn (Sale $sale): array => [
@@ -121,7 +121,7 @@ class SalesReset extends Page
         ];
 
         $json = json_encode($backup, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-        $filename = 'ventas-respaldo-'.now()->format('Y-m-d-His').'.json';
+        $filename = 'ventas-respaldo-'.now(config('app.display_timezone'))->format('Y-m-d-His').'.json';
 
         Storage::disk('local')->put('sales-backups/'.$filename, $json);
 

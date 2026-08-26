@@ -58,7 +58,7 @@ class SaleResource extends Resource
                     ->required(),
                 DatePicker::make('date')
                     ->label('Fecha')
-                    ->default(now())
+                    ->default(fn (): string => now(config('app.display_timezone'))->toDateString())
                     ->required(),
                 static::getSaleDetailsRepeater(),
                 static::getTotalField(),

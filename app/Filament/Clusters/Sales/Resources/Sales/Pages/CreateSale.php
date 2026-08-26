@@ -265,7 +265,7 @@ class CreateSale extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['user_id'] = auth()->id();
-        $data['date'] = now();
+        $data['date'] = now(config('app.display_timezone'))->toDateString();
         $data['payment_method'] = $this->chargingPaymentMethod;
         $data['exchange_rate'] = $this->chargingExchangeRate;
         $data['amount_usd'] = $this->chargingAmountUsd;

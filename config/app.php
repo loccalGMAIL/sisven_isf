@@ -73,12 +73,26 @@ return [
     |--------------------------------------------------------------------------
     |
     | Here you may specify the default timezone for your application, which
-    | will be used by the PHP date and date-time functions. The timezone
-    | is set to "UTC" by default as it is suitable for most use cases.
+    | will be used by the PHP date and date-time functions. Timestamps are
+    | always persisted in UTC; use the display timezone below to control
+    | how those timestamps are shown to the user.
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => env('APP_TIMEZONE', 'UTC'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Application Display Timezone
+    |--------------------------------------------------------------------------
+    |
+    | The timezone the application's users actually work in. Stored timestamps
+    | stay in UTC, and this value is used to convert them for display in the
+    | Filament panel and to resolve "today" when recording a sale.
+    |
+    */
+
+    'display_timezone' => env('APP_DISPLAY_TIMEZONE', 'America/Argentina/Buenos_Aires'),
 
     /*
     |--------------------------------------------------------------------------

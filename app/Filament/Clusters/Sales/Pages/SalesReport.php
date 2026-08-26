@@ -45,8 +45,8 @@ class SalesReport extends Page
     public function mount(): void
     {
         $this->form->fill([
-            'date_from' => now()->startOfMonth()->toDateString(),
-            'date_to' => now()->toDateString(),
+            'date_from' => now(config('app.display_timezone'))->startOfMonth()->toDateString(),
+            'date_to' => now(config('app.display_timezone'))->toDateString(),
             'user_ids' => [],
             'payment_methods' => [],
         ]);
@@ -185,7 +185,7 @@ class SalesReport extends Page
     protected function downloadCsv(): StreamedResponse
     {
         $sales = $this->filteredSalesQuery()->get();
-        $filename = 'informe-ventas-'.now()->format('Y-m-d-His').'.csv';
+        $filename = 'informe-ventas-'.now(config('app.display_timezone'))->format('Y-m-d-His').'.csv';
 
         return Response::streamDownload(function () use ($sales): void {
             $handle = fopen('php://output', 'w');
@@ -213,7 +213,7 @@ class SalesReport extends Page
     protected function downloadPdf(): StreamedResponse
     {
         $summary = $this->getSummary();
-        $filename = 'informe-ventas-'.now()->format('Y-m-d-His').'.pdf';
+        $filename = 'informe-ventas-'.now(config('app.display_timezone'))->format('Y-m-d-His').'.pdf';
 
         $pdf = Pdf::loadView('pdf.sales-report', ['summary' => $summary])
             ->setPaper('a4', 'portrait');
