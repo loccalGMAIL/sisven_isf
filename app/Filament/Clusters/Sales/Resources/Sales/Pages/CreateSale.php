@@ -78,7 +78,7 @@ class CreateSale extends CreateRecord
                 return;
             }
 
-            $this->chargingReceiptPath = $this->paymentReceipt->store('sale-receipts', 'public');
+            $this->chargingReceiptPath = $this->paymentReceipt->store('/', 'receipts');
         }
 
         if ($method === 'dolares') {

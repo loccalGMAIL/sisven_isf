@@ -169,7 +169,7 @@ class SaleResource extends Resource
                 Action::make('viewReceipt')
                     ->label('Comprobante')
                     ->icon(Heroicon::Photo)
-                    ->url(fn (Sale $record): string => Storage::disk('public')->url($record->receipt_path))
+                    ->url(fn (Sale $record): string => Storage::disk('receipts')->url($record->receipt_path))
                     ->openUrlInNewTab()
                     ->visible(fn (Sale $record): bool => filled($record->receipt_path)),
                 EditAction::make(),
